@@ -1,0 +1,16 @@
+body {
+  background-color: gray;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#app-container {
+  border: 5px solid;
+}
+
+.ui-container {
+ height: 100%;
+}
+
