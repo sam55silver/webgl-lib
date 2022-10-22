@@ -1,6 +1,7 @@
 import './style.css';
 import initShadersProgram from './src/shaders';
-import mat4 from './src/mat4';
+import mat4 from './lib/mat4';
+import { setUpUISlider } from './lib/ui';
 
 const main = () => {
   const canvas = document.querySelector('#app');
@@ -56,40 +57,87 @@ const main = () => {
     offset
   );
 
+  let translatePos = [0, 0];
+
+  setUpUISlider(
+    'Translate X',
+    [0, ctx.canvas.width],
+    translatePos[0],
+    (val) => {
+      translatePos[0] = val;
+      Render();
+    }
+  );
+  setUpUISlider(
+    'Translate Y',
+    [0, ctx.canvas.height],
+    translatePos[1],
+    (val) => {
+      translatePos[1] = val;
+      Render();
+    }
+  );
+
+  let rotation = [0, 0, 0];
+
+  const degreeToRad = (deg) => {
+    return (deg * Math.PI) / 180;
+  };
+
+  setUpUISlider('Rotate X', [0, 360], rotation[0], (val) => {
+    rotation[0] = degreeToRad(val);
+    Render();
+  });
+  setUpUISlider('Rotate Y', [0, 360], rotation[1], (val) => {
+    rotation[1] = degreeToRad(val);
+    Render();
+  });
+  setUpUISlider('Rotate Z', [0, 360], rotation[2], (val) => {
+    rotation[2] = degreeToRad(val);
+    Render();
+  });
+
   const color = [Math.random(), Math.random(), Math.random(), 1];
 
-  // Tell WebGL how to convert from clip space to pixels
-  ctx.viewport(0, 0, ctx.canvas.width, ctx.canvas.height);
+  function Render() {
+    // Tell WebGL how to convert from clip space to pixels
+    ctx.viewport(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  // Clear the canvas
-  ctx.clearColor(1, 1, 1, 1);
-  ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
+    // Clear the canvas
+    ctx.clearColor(1, 1, 1, 1);
+    ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
 
-  // Tell it to use our program (pair of shaders)
-  ctx.useProgram(shaderProgram);
+    // Tell it to use our program (pair of shaders)
+    ctx.useProgram(shaderProgram);
 
-  // Bind the attribute/buffer set we want.
-  ctx.bindVertexArray(vao);
+    // Bind the attribute/buffer set we want.
+    ctx.bindVertexArray(vao);
 
-  // Set the color.
-  ctx.uniform4fv(colorLocation, color);
+    // Set the color.
+    ctx.uniform4fv(colorLocation, color);
 
-  // Compute the matrix
-  let matrix = mat4.projection(
-    ctx.canvas.clientWidth,
-    ctx.canvas.clientHeight,
-    400
-  );
-  matrix = mat4.translate(matrix, 200, 200, 0);
+    // Compute the matrix
+    let matrix = mat4.projection(
+      ctx.canvas.clientWidth,
+      ctx.canvas.clientHeight,
+      400
+    );
+    matrix = mat4.translate(matrix, translatePos[0], translatePos[1], 0);
+    matrix = mat4.xRotate(matrix, rotation[0]);
+    matrix = mat4.yRotate(matrix, rotation[1]);
+    matrix = mat4.zRotate(matrix, rotation[2]);
 
-  // Set the matrix.
-  ctx.uniformMatrix4fv(matrixLocation, false, matrix);
+    // Set the matrix.
+    ctx.uniformMatrix4fv(matrixLocation, false, matrix);
 
-  // Draw the geometry.
-  const primitiveType = ctx.TRIANGLES;
-  const offsetF = 0;
-  const count = 16 * 6;
-  ctx.drawArrays(primitiveType, offsetF, count);
+    // Draw the geometry.
+    const primitiveType = ctx.TRIANGLES;
+    const offsetF = 0;
+    const count = 16 * 6;
+    ctx.drawArrays(primitiveType, offsetF, count);
+  }
+
+  Render();
 };
 
 // Fill the buffer with the values that define a letter 'F'.

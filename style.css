@@ -1,16 +1,24 @@
 body {
   background-color: gray;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin: 25px;
 }
 
-#app-container {
+.app-container {
+  display: flex;
+}
+
+#app {
   border: 5px solid;
 }
 
-.ui-container {
- height: 100%;
+#ui-container {
+  margin-left: 50px;
+  color: white;
 }
 
+#ui-container > div {
+  display: grid;
+  grid-template-columns: auto 200px 40px;
+  gap:20px;
+  align-items: center;
+}
