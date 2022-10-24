@@ -4,13 +4,18 @@ const vertexShaderSource = `#version 300 es
 // It will receive data from a buffer
 in vec4 a_position;
 
+in vec4 a_color;
+
 // A matrix to transform the positions by
 uniform mat4 u_matrix;
 
+out vec4 v_color;
+
 // all shaders have a main function
 void main() {
-  // Multiply the position by the matrix.
   gl_Position = u_matrix * a_position;
+
+  v_color = a_color;
 }
 `;
 
@@ -18,13 +23,13 @@ const fragmentShaderSource = `#version 300 es
 
 precision highp float;
 
-uniform vec4 u_color;
+in vec4 v_color;
 
 // we need to declare an output for the fragment shader
 out vec4 outColor;
 
 void main() {
-  outColor = u_color;
+  outColor = v_color;
 }
 `;
 
